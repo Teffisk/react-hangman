@@ -6,7 +6,9 @@ interface Props {
 
 class Gameboard extends Component<Props> {
   render() {
-    return <h1>Gameboard is {this.props.currentPuzzle}</h1>;
+    if (this.props) {
+      return <h1>Puzzle is {this.props.currentPuzzle}</h1>;
+    }
   }
 }
 

@@ -2,38 +2,44 @@ import React, { Component } from "react";
 import "./App.css";
 import StartButton from "./Components/StartButton";
 import Gameboard from "./Components/Gameboard";
-import WrongGuesses from "./Components/WrongGuesses";
-import Tries from "./Components/Tries";
+// import Game from "./Interfaces/Game.interface";
 
 interface Props {
-  props: any;
+  puzzle?: string;
+  puzzles?: string[];
+  gameboard?: string[];
+  wrongGuesses?: string[];
+  gameStatus?: string;
+  handleStartGame?: () => void;
 }
 
-interface State {}
-
-let puzzles: string[];
-
-puzzles = ["Hello World", "Create React App", "Superset of Javascript"];
-
-let gameboard: string;
-
-gameboard = puzzles[Math.floor(Math.random() * puzzles.length)];
+interface State {
+  puzzle: string;
+}
 
 class App extends Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      puzzle: gameboard
+      puzzle: ""
     };
   }
+  puzzles = ["Hello World", "Create React App", "Superset of Javascript"];
 
+  handleStartGame = () => {
+    this.setState({
+      puzzle: this.puzzles[Math.floor(Math.random() * this.puzzles.length)]
+    });
+  };
+
+  componentDidMount() {
+    this.handleStartGame();
+  }
   render() {
     return (
       <div>
-        <StartButton />
-        <Gameboard currentPuzzle={this.puzzle} />
-        {/* <WrongGuesses />
-        <Tries /> */}
+        <StartButton handleOnClick={this.handleStartGame} />
+        <Gameboard currentPuzzle={this.state.puzzle} />
       </div>
     );
   }
