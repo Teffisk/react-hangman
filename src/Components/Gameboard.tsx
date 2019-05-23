@@ -1,14 +1,17 @@
 import React, { Component } from "react";
 
 interface Props {
-  currentPuzzle: string;
+  puzzleAnswer: string;
+  gameboard: string[];
 }
 
-class Gameboard extends Component<Props> {
+interface State {
+  gameboard: string[];
+}
+
+class Gameboard extends Component<Props, State> {
   render() {
-    if (this.props) {
-      return <h1>Puzzle is {this.props.currentPuzzle}</h1>;
-    }
+    return <h1 className="gameboard">{this.props.gameboard}</h1>;
   }
 }
 
