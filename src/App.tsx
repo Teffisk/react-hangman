@@ -4,25 +4,20 @@ import StartButton from "./Components/StartButton";
 import Gameboard from "./Components/Gameboard";
 import UserInput from "./Components/UserInput";
 import WrongGuesses from "./Components/WrongGuesses";
+import ChooseGame from "./Components/ChooseGame";
 
-interface Props {
-  puzzle?: string;
-  puzzles?: string[];
-  gameboard?: string[];
-  wrongGuesses?: string[];
-  gameStatus?: string;
-  handleStartGame?: () => void;
-  handleSubmitLetter?: () => void;
-}
+interface Props {}
 
 interface State {
   puzzle: string;
+  puzzles: string[];
   gameboard: string[];
   currentGuess: string;
   wrongGuesses: string[];
   correct: string;
   maxTries: number;
   status: string;
+  year?: number;
 }
 
 class App extends Component<Props, State> {
@@ -30,6 +25,7 @@ class App extends Component<Props, State> {
     super(props);
     this.state = {
       puzzle: "",
+      puzzles: [""],
       gameboard: [""],
       currentGuess: "",
       wrongGuesses: [],
@@ -38,15 +34,63 @@ class App extends Component<Props, State> {
       status: ""
     };
     this.handleSubmitLetter = this.handleSubmitLetter.bind(this);
+    this.handleYearChange = this.handleYearChange.bind(this);
   }
-  puzzles = ["Hello World", "Create React App", "Superset of Javascript"];
+
+  years = [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018
+  ];
+
+  handleYearChange = e => {
+    e.preventDefault();
+    // set the state to the selected year
+
+    const Url = `https://api.themoviedb.org/3/discover/movie?primary_release_year=${
+      e.target.value
+    }&sort_by=popularity.desc&api_key=1e85780dea920f95468cb80f57fbdc48&language=en`;
+    console.log(Url);
+    // fetch the top movies of that year, filter to titles of top ten
+    fetch(Url)
+      .then(res => res.json())
+      .then(data => this.setState({ puzzles: this.getTopTenMovies(data) }));
+  };
+
+  getTopTenMovies = (data: any) => {
+    console.log(data.results);
+    let movies = data.results.filter(movie => {
+      return (movie.original_language = "en");
+    });
+    movies = movies.map((movie: any) => {
+      return movie.title;
+    });
+    return movies.slice(0, 10);
+  };
 
   handleStartGame = () => {
-    let puzzle: string = this.puzzles[
-      Math.floor(Math.random() * this.puzzles.length)
+    console.log(this.state.puzzles);
+    let puzzle: string = this.state.puzzles[
+      Math.floor(Math.random() * this.state.puzzles.length)
     ].toUpperCase();
     let gameboard: string[] = puzzle.split("").map(elem => {
-      if (elem != " ") {
+      if (elem !== " " && elem !== "-" && elem !== ":") {
         return "_";
       } else return elem;
     });
@@ -55,7 +99,6 @@ class App extends Component<Props, State> {
       gameboard: gameboard,
       wrongGuesses: [],
       correct: "",
-      maxTries: 10,
       status: "in progress"
     });
   };
@@ -72,8 +115,7 @@ class App extends Component<Props, State> {
       let correct;
       for (let i = 0; i < state.gameboard.length; i++) {
         if (puzzle.indexOf(state.currentGuess) > -1) {
-          if (puzzle[i] == state.currentGuess) {
-            console.log("Correct!", state.currentGuess);
+          if (puzzle[i] === state.currentGuess) {
             correct = `${state.currentGuess} was right!`;
             gameboard[i] = state.currentGuess;
             this.checkWin();
@@ -84,7 +126,6 @@ class App extends Component<Props, State> {
         ) {
           wrongGuesses.push(state.currentGuess);
           correct = `${state.currentGuess} was wrong!`;
-          console.log("Incorrect!", state.currentGuess);
           this.checkWin();
         }
       }
@@ -109,6 +150,7 @@ class App extends Component<Props, State> {
   render() {
     return (
       <div>
+        <ChooseGame years={this.years} handleChange={this.handleYearChange} />
         <StartButton handleOnClick={this.handleStartGame} />
         <Gameboard
           puzzleAnswer={this.state.puzzle}
