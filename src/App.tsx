@@ -5,6 +5,8 @@ import Gameboard from "./Components/Gameboard";
 import UserInput from "./Components/UserInput";
 import WrongGuesses from "./Components/WrongGuesses";
 import ChooseGame from "./Components/ChooseGame";
+import YouLose from "./Components/YouLose";
+import YouWin from "./Components/YouWin";
 
 interface Props {}
 
@@ -62,7 +64,7 @@ class App extends Component<Props, State> {
   handleYearChange = e => {
     e.preventDefault();
     // set the state to the selected year
-
+    this.startButton = <StartButton handleOnClick={this.handleStartGame} />;
     const Url = `https://api.themoviedb.org/3/discover/movie?primary_release_year=${
       e.target.value
     }&sort_by=popularity.desc&api_key=1e85780dea920f95468cb80f57fbdc48&language=en`;
@@ -85,6 +87,7 @@ class App extends Component<Props, State> {
   };
 
   handleStartGame = () => {
+    this.endGame = <UserInput handleOnChange={this.handleSubmitLetter} />;
     console.log(this.state.puzzles);
     let puzzle: string = this.state.puzzles[
       Math.floor(Math.random() * this.state.puzzles.length)
@@ -99,7 +102,7 @@ class App extends Component<Props, State> {
       gameboard: gameboard,
       wrongGuesses: [],
       correct: "",
-      status: "in progress"
+      status: ""
     });
   };
 
@@ -137,30 +140,40 @@ class App extends Component<Props, State> {
     });
     e.target.value = "";
   }
+  startButton = <></>;
+  endGame = <UserInput handleOnChange={this.handleSubmitLetter} />;
 
   checkWin() {
     if (this.state.wrongGuesses.length >= this.state.maxTries) {
       this.setState({ status: "lose" });
+      this.endGame = <YouLose />;
       // run gameover component
     } else if (this.state.gameboard.join("") === this.state.puzzle) {
       this.setState({ status: "win" });
+      this.endGame = <YouWin />;
+    } else {
+      this.endGame = <UserInput handleOnChange={this.handleSubmitLetter} />;
     }
   }
 
   render() {
     return (
-      <div>
+      <div className="app">
+        <h1 className="title">Movie Hangman</h1>
         <ChooseGame years={this.years} handleChange={this.handleYearChange} />
-        <StartButton handleOnClick={this.handleStartGame} />
+        {this.startButton}
         <Gameboard
           puzzleAnswer={this.state.puzzle}
           gameboard={this.state.gameboard}
         />
-        <p>{this.state.correct}</p>
-        <p>
-          {this.state.wrongGuesses.length}/{this.state.maxTries}
-        </p>
-        <UserInput handleOnChange={this.handleSubmitLetter} />
+        <p className="correct">{this.state.correct}</p>
+        {this.endGame}
+        <div className="attempts">
+          <p>Number of tries remaining</p>
+          <p className="incorrect">
+            {this.state.wrongGuesses.length}/{this.state.maxTries}
+          </p>
+        </div>
         <WrongGuesses wrongGuesses={this.state.wrongGuesses} />
       </div>
     );

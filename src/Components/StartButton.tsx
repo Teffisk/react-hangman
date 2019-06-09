@@ -6,7 +6,11 @@ interface StartProps {
 
 class StartButton extends Component<StartProps> {
   render() {
-    return <button onClick={this.props.handleOnClick}>Start New Game</button>;
+    return (
+      <div className="start-button">
+        <button onClick={this.props.handleOnClick}>Start New Game</button>
+      </div>
+    );
   }
 }
 
